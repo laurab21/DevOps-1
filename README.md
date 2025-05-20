@@ -117,3 +117,18 @@ volumes:
 #1-10 Why do we put our images into an online repo?
 
 
+define some jobs, 
+brach develop create 
+develop brach, for new featurs and testing 
+main brach, the main one, we create a develop branch so we don't crash it pwd
+
+#2-1 What are testcontainers?
+
+Testcontainers are Java libraries that let you run Docker containers as part of your automated tests. They are super useful when your code depends on external services like databases, message queues, or APIs. if i want to test that your app connects to a PostgreSQL database correctly. Instead of:
+
+Installing a real PostgreSQL database manually on your machine,
+
+Or mocking the database (which might not test everything properly),
+
+You can use Testcontainers to spin up a real PostgreSQL Docker container just for the test and automatically shut it down afterward.
+
