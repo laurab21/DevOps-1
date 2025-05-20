@@ -24,6 +24,10 @@ jobs:
      #finally build your app with the latest command
       - name: Build and test with Maven
         run: mvn clean verify --file ./TP1/simpleapi/pom.xml
+      
+      - name: SonarCloud Analysis
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=laurab21_DevOps-1 -Dsonar.organization=laurab21 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} --file ./TP1/simpleapi/pom.xml
+
     
   build-and-push-docker-image:
     needs: test-backend
