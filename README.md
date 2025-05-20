@@ -2,6 +2,14 @@
 My answers for the Docker TD from school. DevOps
 # DevOps-1
 
+docker run -d \
+  --name tp1-db \
+  --network backend-network \
+  -e POSTGRES_DB=mydb \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  postgres:15
+
 My answers for the Docker TD from school. DevOps
 
 ## ✅ TD1 - Cat Gif Flask App
@@ -40,4 +48,72 @@ We use the mulstisage build in order to build a java app easier. In this case, w
 We need a reverse proxy to hide and protect our backend application, manage traffic, and simplify how users access our services. Basically it helps serve everything from 1 URL, we can add security features as SSL/hhtsp, it serves static files and front-end directly from Apache and finally prevents users from seeing backend port numbers, like the 8080. So, instead of typing localhost:8082, users just go to localhost (or any domain you choose) and Apache redirects traffic to the backend invisibly.
 
 Apache httpd can do more than serve static or dynamic content—it can also act as a reverse proxy server (or gateway). In this setup, Apache does not generate the content itself. Instead, it forwards incoming client requests to one or more backend servers, which handle the request and return the response. Apache then sends that response back to the client.
+
+#1-6 Why is docker-compose so important?
+
+Docker-compose is important because it allows you to define, configure, and run multi-container Docker applications easily using a single YAML file. It simplifies the orchestration of multiple services (like backend, frontend, and database), making it easier to manage dependencies, networking, environment variables, and service startup order.
+ 
+#1-7 Document docker-compose most important commands
+Command	Description
+docker-compose up: Starts all the services defined in docker-compose.yml
+docker-compose up -d: tarts services in detached mode (in the background)
+docker-compose down	Stops and removes all services and networks
+docker-compose build: Builds images for services defined in the compose file
+docker-compose logs:Displays logs from all containers
+docker-compose ps: Lists all services defined in the project
+docker-compose stop / start / restart: Controls individual or all containers
+docker-compose exec <service> <command>	Runs a command inside a running container
+
+#1-8 Document your docker-compose file.
+
+services:
+  backend:
+    build:
+      context: ../simpleapi
+    image: simpleapi-app
+    container_name: simpleapi-backend
+    networks:
+      - backend-network
+      -create netwok
+    depends_on:
+      - database
+
+  database:
+    image: postgres:15
+    container_name: tp1-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: students
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+#don't use the psotgree:15 image and 
+  httpd:
+    image: apache-landingpage
+    container_name: apache-server
+    build:
+      context: ../http-server
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - create network 
+
+networks:
+  backend-network:
+
+
+volumes:
+  pgdata:
+
+  the api and proxi will be in the same network 
+
+
+  #1-9 Document your publication commands and published images in dockerhub.
+#1-10 Why do we put our images into an online repo?
+
 

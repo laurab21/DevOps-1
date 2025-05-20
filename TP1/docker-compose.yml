@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: ./simpleapi
+      dockerfile: Dockerfile
+    networks:
+      - db-network       # backend <-> database
+      - proxy-network    # backend <-> apache
+    depends_on:
+      - database
+
+  database:
+    build:
+      context: ./TP1
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: students
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - db-network       # database <-> backend only
+
+  httpd:
+    build:
+      context: ./TD1
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - proxy-network    # apache <-> backend only
+
+volumes:
+  pgdata:
+
+networks:
+  db-network:
+  proxy-network:
+
