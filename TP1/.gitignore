@@ -1,0 +1,12 @@
+# Don't track Docker stuff or logs
+*.log
+*.pid
+.env
+__pycache__/
+node_modules/
+*.iml
+.idea/
+.vscode/
+target/
+build/
+.DS_Store
