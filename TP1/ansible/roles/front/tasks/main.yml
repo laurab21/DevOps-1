@@ -1,0 +1,13 @@
+---
+- name: Run front-end container
+  docker_container:
+    name: frontend
+    image: laurab21/devops-front:latest
+    #ports:
+    #  - "80:80"
+    networks:
+      - name: app_net
+    restart_policy: always
+    state: started
+
+

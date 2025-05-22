@@ -1,0 +1,16 @@
+---
+- name: Run backend container
+  docker_container:
+    name: simpleapi-backend
+    image: laurab21/tp-devops-simple-api:latest
+    networks:
+      - name: app_net
+      - name: nginx-proxy
+    env:
+      POSTGRES_USER: usr
+      POSTGRES_PASSWORD: pwd
+      POSTGRES_DB: db
+    restart_policy: always
+    state: started
+
+

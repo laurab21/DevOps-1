@@ -1,0 +1,12 @@
+---
+- name: Run NGINX proxy
+  docker_container:
+    name: nginx-proxy
+    image: laurab21/apache-landingpage:latest
+    ports:
+      - "80:80"
+    networks:
+      - name: app_net 
+    restart_policy: always
+    state: started
+
