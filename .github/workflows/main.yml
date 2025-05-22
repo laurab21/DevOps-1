@@ -75,17 +75,12 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+
           script: |
-            cd /home/admin
-            if [ ! -d "DevOps-1" ]; then
-              git clone https://github.com/laurab21/DevOps-1.git
-            else
-              cd DevOps-1
-              git pull origin main
-              cd ..
-            fi
-            cd DevOps-1/TP1/ansible
-            ansible-playbook -i inventories/setup.yml playbook.yml
+            cd TP1
+            git pull origin main
+            /opt/homebrew/bin/ansible-playbook -i inventories/setup.yml playbook.yml
+
 
 
           
