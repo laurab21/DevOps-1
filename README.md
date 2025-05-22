@@ -132,3 +132,153 @@ Or mocking the database (which might not test everything properly),
 
 You can use Testcontainers to spin up a real PostgreSQL Docker container just for the test and automatically shut it down afterward.
 
+TP3 QUESTIONS 
+
+3-1 Document your inventory and base commands
+
+Inventory File: ansible/inventories/setup.yml
+"all:
+  vars:
+    ansible_user: admin
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+  children:
+    prod:
+      hosts:
+        laurabeatriz.montealegregonzalez.takima.cloud:"
+
+-Test the connection to the server (Confirms that Ansible can connect to the host using SSH):
+
+ansible all -i ansible/inventories/setup.yml -m ping
+
+-Gather system facts (OS, distribution, version, release): ansible all -i ansible/inventories/setup.yml -m setup -a "filter=ansible_distribution*"
+
+-Install Apache2 web server:
+ansible all -i ansible/inventories/setup.yml -m apt -a "name=apache2 state=present" --become
+
+-Create a simple HTML file
+ansible all -i ansible/inventories/setup.yml -m shell -a 'echo "<html><h1>Hello from Ansible!</h1></html>" > /var/www/html/index.html' --become
+
+-Start the Apache2 service
+
+ansible all -i ansible/inventories/setup.yml -m service -a "name=apache2 state=started" --become
+
+-Remove Apache2 (but already did this)
+ansible all -i ansible/inventories/setup.yml -m apt -a "name=apache2 state=absent" --become
+
+3-2 Document your playbook
+
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - python3-venv
+    state: latest
+    update_cache: yes
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Add Docker APT repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+    state: present
+    update_cache: yes
+
+- name: Install Docker
+  apt:
+    name: docker-ce
+    state: present
+
+- name: Install Python3 and pip3
+  apt:
+    name:
+      - python3
+      - python3-pip
+    state: present
+
+- name: Create a virtual environment for Docker SDK
+  command: python3 -m venv /opt/docker_venv
+  args:
+    creates: /opt/docker_venv
+
+- name: Install Docker SDK for Python in virtual environment
+  command: /opt/docker_venv/bin/pip install docker
+
+- name: Make sure Docker is running
+  service:
+    name: docker
+    state: started
+-Create the playbook file docker.yml
+
+    ---
+- hosts: all
+  become: true
+  gather_facts: true
+
+  roles:
+    - docker
+#3-3 Document your docker_container tasks configuration.
+
+# Launch the backend application container
+- name: Run backend container
+  docker_container:
+    name: backend-app                      # Name of the container
+    image: yourdockerhub/backend:latest    # Docker image to use
+    state: started                         # Ensure the container is running
+    restart_policy: always                 # Automatically restart on failure or reboot
+    ports:                                 # Port mapping between host and container
+      - "8000:8000"
+    networks:
+      - app-network                        # Connect to the custom Docker network
+    env:                                   # Environment variables for the app
+      DATABASE_URL: postgresql://db:5432/app
+
+
+# Launch the PostgreSQL database container
+- name: Run PostgreSQL container
+  docker_container:
+    name: db                               # Name of the DB container
+    image: postgres:15                     # Use the official Postgres image
+    state: started
+    restart_policy: always
+    env:
+      POSTGRES_USER: appuser               # DB user
+      POSTGRES_PASSWORD: securepassword    # DB password
+      POSTGRES_DB: appdb                   # Initial DB name
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data    # Persist data using a named volume
+
+# Launch the HTTP server container for the frontend
+- name: Run Apache HTTPD container
+  docker_container:
+    name: apache-frontend
+    image: yourdockerhub/apache-landingpage:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+
+CODE TO RUN:
+/opt/homebrew/bin/ansible-playbook -i inventories/setup.yml playbook.yml
+
+#Is it really safe to deploy automatically every new image on the hub ? explain. What can I do to make it more secure?
+
+No, it's not always safe. Automatically deploying every new image can be risky if the image is faulty, untested, or was accidentally pushed. This can break your production environment.
+
+
+
+
+
