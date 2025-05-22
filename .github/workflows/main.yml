@@ -79,5 +79,7 @@ jobs:
             cd ~/DevOps-1/TP1/ansible
             git pull origin main
             /opt/homebrew/bin/ansible-playbook -i inventories/setup.yml playbook.yml
+
+
           
 
