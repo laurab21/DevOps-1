@@ -82,9 +82,10 @@ jobs:
             else
               cd DevOps-1
               git pull origin main
+              cd ..
             fi
             cd DevOps-1/TP1/ansible
-            /opt/homebrew/bin/ansible-playbook -i inventories/setup.yml playbook.yml
+            ansible-playbook -i inventories/setup.yml playbook.yml
 
 
           
