@@ -24,7 +24,11 @@ jobs:
      #finally build your app with the latest command
       - name: Build and test with Maven
         run: mvn clean verify --file ./TP1/simpleapi/pom.xml
-      
+        
+      - name: SonarCloud Analysis
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=laurab21_DevOps-1 -Dsonar.organization=laurab21 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} --file ./TP1/simpleapi/pom.xml
+
+    
       - name: SonarCloud Analysis
         run: mvn -B verify sonar:sonar -Dsonar.projectKey=laurab21_DevOps-1 -Dsonar.organization=laurab21 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} --file ./TP1/simpleapi/pom.xml
 
@@ -81,4 +85,28 @@ jobs:
             git pull origin main
             ansible-playbook -i inventories/setup.yml playbook.yml
 
+
+  deploy:
+    needs: build-and-push-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy to server with Ansible
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          script: |
+            cd TP1
+            git pull origin main
+            /opt/homebrew/bin/ansible-playbook -i inventories/setup.yml playbook.yml
+
+
+
+          
 
